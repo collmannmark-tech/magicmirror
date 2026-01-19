@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Wetter Daisendorf</title>
+
+<style>
+body {
+margin: 0;
+padding: 0;
+background: black;
+color: white;
+font-family: Arial, Helvetica, sans-serif;
+text-align: center;
+transform: scaleX(-1); /* Spiegelmodus */
+}
+
+#city {
+font-size: 30px;
+margin-top: 20px;
+}
+
+#temp {
+font-size: 70px;
+margin: 10px 0;
+}
+
+#desc {
+font-size: 24px;
+text-transform: capitalize;
+}
+
+#icon img {
+width: 100px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="city">Daisendorf</div>
+<div id="icon"></div>
+<div id="temp">--°C</div>
+<div id="desc">Lädt...</div>
+
+<script>
+var API_KEY = "934c2c2bf8b3b6b12974faa444803e51";
+var CITY = "Daisendorf,DE";
+
+var url = "https://api.openweathermap.org/data/2.5/weather?q="
++ CITY + "&units=metric&lang=de&appid=" + API_KEY;
+
+var xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+if (xhr.readyState === 4 && xhr.status === 200) {
+var data = JSON.parse(xhr.responseText);
+
+document.getElementById("temp").innerHTML =
+Math.round(data.main.temp) + "°C";
+
+document.getElementById("desc").innerHTML =
+data.weather[0].description;
+
+var icon = data.weather[0].icon;
+document.getElementById("icon").innerHTML =
+"<img src='https://openweathermap.org/img/wn/" +
+icon + "@2x.png'>";
+}
+};
+xhr.open("GET", url, true);
+xhr.send();
+
+// Aktualisierung alle 10 Minuten
+setTimeout(function() {
+location.reload();
+}, 600000);
+</script>
+
+</body>
+</html>
