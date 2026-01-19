@@ -2,48 +2,119 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Wetter Daisendorf</title>
+<title>Magic Mirror – Uhr & Wetter</title>
 
 <style>
-body {
+html, body {
 margin: 0;
 padding: 0;
+width: 100%;
+height: 100%;
 background: black;
-color: white;
+color: #9fd7ff;
 font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Gesamtes Layout */
+#container {
+width: 100%;
+height: 100%;
+box-sizing: border-box;
+padding: 40px 30px;
+}
+
+/* Uhr */
+#clock {
 text-align: center;
-transform: scaleX(-1); /* Spiegelmodus */
+}
+
+#time {
+font-size: 96px;
+font-weight: normal;
+}
+
+#date {
+font-size: 28px;
+margin-top: 10px;
+}
+
+/* Wetter unter der Uhr */
+#weather {
+margin-top: 40px;
+text-align: center;
 }
 
 #city {
-font-size: 30px;
-margin-top: 20px;
+font-size: 26px;
+margin-bottom: 10px;
 }
 
 #temp {
-font-size: 70px;
-margin: 10px 0;
+font-size: 64px;
 }
 
 #desc {
-font-size: 24px;
-text-transform: capitalize;
+font-size: 22px;
+margin-top: 5px;
+}
+
+#details {
+font-size: 20px;
+margin-top: 10px;
 }
 
 #icon img {
 width: 100px;
+margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
+<div id="container">
+
+<div id="clock">
+<div id="time">--:--</div>
+<div id="date">--</div>
+</div>
+
+<div id="weather">
 <div id="city">Daisendorf</div>
 <div id="icon"></div>
 <div id="temp">--°C</div>
-<div id="desc">Lädt...</div>
+<div id="desc">Lädt…</div>
+<div id="details"></div>
+</div>
+
+</div>
 
 <script>
+/* ===== UHR ===== */
+function updateClock() {
+var now = new Date();
+
+var h = now.getHours();
+var m = now.getMinutes();
+if (m < 10) m = "0" + m;
+
+var days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+var months = ["01","02","03","04","05","06","07","08","09","10","11","12"];
+
+var dayName = days[now.getDay()];
+var dateStr = dayName + ", " +
+now.getDate() + "." +
+months[now.getMonth()] + "." +
+now.getFullYear();
+
+document.getElementById("time").innerHTML = h + ":" + m;
+document.getElementById("date").innerHTML = dateStr;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+/* ===== WETTER ===== */
 var API_KEY = "934c2c2bf8b3b6b12974faa444803e51";
 var CITY = "Daisendorf,DE";
 
@@ -55,11 +126,16 @@ xhr.onreadystatechange = function() {
 if (xhr.readyState === 4 && xhr.status === 200) {
 var data = JSON.parse(xhr.responseText);
 
+document.getElementById("city").innerHTML = data.name;
 document.getElementById("temp").innerHTML =
 Math.round(data.main.temp) + "°C";
-
 document.getElementById("desc").innerHTML =
 data.weather[0].description;
+
+document.getElementById("details").innerHTML =
+"Gefühlt: " + Math.round(data.main.feels_like) + "°C · " +
+"Luftfeuchte: " + data.main.humidity + "% · " +
+"Wind: " + Math.round(data.wind.speed) + " m/s";
 
 var icon = data.weather[0].icon;
 document.getElementById("icon").innerHTML =
@@ -70,7 +146,7 @@ icon + "@2x.png'>";
 xhr.open("GET", url, true);
 xhr.send();
 
-// Aktualisierung alle 10 Minuten
+/* Aktualisierung alle 10 Minuten */
 setTimeout(function() {
 location.reload();
 }, 600000);
